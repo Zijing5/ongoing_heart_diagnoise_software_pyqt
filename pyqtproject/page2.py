@@ -338,8 +338,8 @@ class MyWindow2(QWidget):
                 # 目前没有展示 但是仓库里有东西，可能是新添加的
                 if len(matching_numbers) >= 4:
                     print('目前没有展示 但是仓库里有东西，可能是新添加的>=4')
-                    result_files = matching_numbers[:4].copy()
-                    for num in result_files:
+                    matching_file = matching_numbers[:4].copy()
+                    for num in matching_file:
                         matching_file = next((file for file in filenames if str(num) in file), None)
                         # print('筛选结果',matching_file)
                         if matching_file:
