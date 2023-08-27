@@ -169,43 +169,58 @@ class MyWindow2(QWidget):
             item = grid_layout.itemAt(i)
             if item.widget():
                 item.widget().deleteLater()
-        for image_path in images:
-            print(image_path)
-            image_name = os.path.basename(image_path)  # 获取图片的文件名
-            image_names.append(image_name)  # 将图片名称添加到列表中
-            pixmap = QPixmap(image_path)
-            aspect_ratio = pixmap.width() / pixmap.height()
-            scaled_width = min(cell_width,250)
-            scaled_height = int(scaled_width / aspect_ratio)
-            label = QLabel()
-            label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-            label.setScaledContents(True)
-            # label.setPixmap(pixmap)
-            # print('1',pixmap.size())
-            # print(scaled_height,scaled_width)
-            scaled = pixmap.scaled(scaled_width, scaled_height, \
-                                          PyQt5.QtCore.Qt.KeepAspectRatio, PyQt5.QtCore.Qt.SmoothTransformation)
+        if len(images)>0:
+            for image_path in images:
+                print(image_path)
+                image_name = os.path.basename(image_path)  # 获取图片的文件名
+                image_names.append(image_name)  # 将图片名称添加到列表中
+                pixmap = QPixmap(image_path)
+                aspect_ratio = pixmap.width() / pixmap.height()
+                scaled_width = min(cell_width,250)
+                scaled_height = int(scaled_width / aspect_ratio)
+                label = QLabel()
+                label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+                label.setScaledContents(True)
+                # label.setPixmap(pixmap)
+                # print('1',pixmap.size())
+                # print(scaled_height,scaled_width)
+                scaled = pixmap.scaled(scaled_width, scaled_height, \
+                                              PyQt5.QtCore.Qt.KeepAspectRatio, PyQt5.QtCore.Qt.SmoothTransformation)
 
-            print('2',scaled.size())
-            label.setPixmap(scaled)
+                print('2',scaled.size())
+                label.setPixmap(scaled)
 
-            name_label = QLabel(image_name)  # 创建一个显示图片名称的标签
-            name_label.setAlignment(PyQt5.QtCore.Qt.AlignCenter)  # 居中对齐
-            name_label.setWordWrap(True)  # 自动换行
-            vbox = QVBoxLayout()  # 垂直布局，用于放置图片和名称标签
-            vbox.addWidget(label)
-            vbox.addWidget(name_label)
-            widget = QWidget()  # 创建一个容器小部件，将垂直布局放置其中
-            widget.setLayout(vbox)
-            grid_layout.addWidget(widget, row, col)
-            # label.setAlignment(PyQt5.QtCore.Qt.AlignTop | PyQt5.QtCore.Qt.AlignLeft)  # 设置图片对齐方式
-            # label.setGeometry(col * cell_width, row * cell_width, cell_width, cell_width)  # 设置图片位置和大小
-            col += 1
-            if col >= 2:
-                col = 0
-                row += 1
-            if row>=2:
-                break
+                name_label = QLabel(image_name)  # 创建一个显示图片名称的标签
+                name_label.setAlignment(PyQt5.QtCore.Qt.AlignCenter)  # 居中对齐
+                name_label.setWordWrap(True)  # 自动换行
+                vbox = QVBoxLayout()  # 垂直布局，用于放置图片和名称标签
+                vbox.addWidget(label)
+                vbox.addWidget(name_label)
+                widget = QWidget()  # 创建一个容器小部件，将垂直布局放置其中
+                widget.setLayout(vbox)
+                grid_layout.addWidget(widget, row, col)
+                # label.setAlignment(PyQt5.QtCore.Qt.AlignTop | PyQt5.QtCore.Qt.AlignLeft)  # 设置图片对齐方式
+                # label.setGeometry(col * cell_width, row * cell_width, cell_width, cell_width)  # 设置图片位置和大小
+                col += 1
+                if col >= 2:
+                    col = 0
+                    row += 1
+                if row>=2:
+                    break
+    # def deleteVBoxLayout(grid_layout):
+    #     pixmap = QPixmap()
+    #     label = QLabel()
+    #     label.setPixmap(pixmap)
+    #     name_label = QLabel('')  # 创建一个显示图片名称的标签
+    #     name_label.setAlignment(PyQt5.QtCore.Qt.AlignCenter)  # 居中对齐
+    #     name_label.setWordWrap(True)  # 自动换行
+    #     vbox = QVBoxLayout()  # 垂直布局，用于放置图片和名称标签
+    #     vbox.addWidget(label)
+    #     vbox.addWidget(name_label)
+    #     widget = QWidget()  # 创建一个容器小部件，将垂直布局放置其中
+    #     widget.setLayout(vbox)
+    #     grid_layout.addWidget(widget)
+
     def idx_get(self,grid_layout):
         # 返回图片的名称 输入是网格布局
         label_texts = []
@@ -222,91 +237,126 @@ class MyWindow2(QWidget):
         # print('上四张图片',label_texts)
         return label_texts
 
-    def next4get(self, label_texts, path):
-        # 得到目前展示的四张图片名 并在地址中寻找接下来四个文件名
-        max_numbers = [int(item.split('_')[-1].split('.')[0]) for item in label_texts]
-        maxidx = max(max_numbers)
-        # print('前四章图片最大',maxidx)
-        filenames = os.listdir(path)
-        # matching_files = [filename for filename in filenames if filename.endswith('.png')]
-
-        matching_numbers = [int(item.split('_')[-1].split('.')[0]) for item in filenames]
-        matching_numbers.sort()
-        # print('已排序',matching_numbers[:5])
-
-        greater_numbers = [num for num in matching_numbers if num > maxidx]
-        # print('比较大小',greater_numbers[:4])
-        if len(greater_numbers) == 0:
-            # print(greater_numbers,'??')
-            greater_numbers = matching_numbers
-        if len(greater_numbers) >= 4:
-            result_files = []
-            for num in greater_numbers[:4]:
-                print(num)
-                matching_file = next((file for file in filenames \
-                                      if re.search(r'\d+', file) \
-                                      and int(re.search(r'\d+', file).group()) == num), None)
-                # print('筛选结果',matching_file)
-                if matching_file:
-                    result_files.append(matching_file)
-        if len(greater_numbers) < 4 and len(greater_numbers) > 0:
-            result_files = []
-            for num in greater_numbers:
-                matching_file = next((file for file in filenames if str(num) in file), None)
-                if matching_file:
-                    result_files.append(matching_file)
-
-        return result_files
-
-
-    #todo#解决bug:两库图片名称一致的情况下，无法转移
-
-    # def next4get(self,label_texts, path):
+    # def next4get(self, label_texts, path):
+    #     # 得到目前展示的四张图片名 并在地址中寻找接下来四个文件名
+    #     max_numbers = [int(item.split('_')[-1].split('.')[0]) for item in label_texts]
+    #     maxidx = max(max_numbers)
+    #     # print('前四章图片最大',maxidx)
     #     filenames = os.listdir(path)
     #     # matching_files = [filename for filename in filenames if filename.endswith('.png')]
+    #
     #     matching_numbers = [int(item.split('_')[-1].split('.')[0]) for item in filenames]
     #     matching_numbers.sort()
-    #     print('success sort')
-    #     if label_texts:
-    #         # 得到目前展示的四张图片名 并在地址中寻找接下来四个文件名
-    #         max_numbers = [int(item.split('_')[-1].split('.')[0]) for item in label_texts]
-    #         maxidx = max(max_numbers)
-    #         # print('前四章图片最大',maxidx)
-    #         # print('已排序',matching_numbers[:5])
-    #         greater_numbers = [num for num in matching_numbers if num > maxidx]
-    #         # print('比较大小',greater_numbers[:4])
-    #         if len(greater_numbers)==0:
-    #             # print(greater_numbers,'??')
-    #             greater_numbers = matching_numbers
-    #         if len(greater_numbers) >=4 :
-    #             result_files = []
-    #             for num in greater_numbers[:4]:
-    #                 print(num)
-    #                 matching_file = next((file for file in filenames \
-    #                                       if re.search(r'\d+', file) \
-    #                                       and int(re.search(r'\d+', file).group()) == num), None)
-    #                 # print('筛选结果',matching_file)
-    #                 if matching_file:
-    #                     result_files.append(matching_file)
-    #         if len(greater_numbers) < 4 and len(greater_numbers)>0 :
-    #             result_files = []
-    #             for num in greater_numbers:
-    #                 matching_file = next((file for file in filenames if str(num) in file), None)
-    #                 if matching_file:
-    #                     result_files.append(matching_file)
-    #     else:
+    #     # print('已排序',matching_numbers[:5])
+    #
+    #     greater_numbers = [num for num in matching_numbers if num > maxidx]
+    #     # print('比较大小',greater_numbers[:4])
+    #     if len(greater_numbers) == 0:
+    #         # print(greater_numbers,'??')
+    #         greater_numbers = matching_numbers
+    #     if len(greater_numbers) >= 4:
     #         result_files = []
-    #         # 目前没有展示 但是仓库里有东西，可能是新添加的
-    #         if len(matching_numbers) >= 4:
-    #             print('目前没有展示 但是仓库里有东西，可能是新添加的>=4')
-    #             result_files = matching_numbers[:4].copy()
-    #         else:
-    #             print('目前没有展示 但是仓库里有东西，可能是新添加的<4')
-    #             result_files = matching_numbers.copy()
+    #         for num in greater_numbers[:4]:
+    #             print(num)
+    #             matching_file = next((file for file in filenames \
+    #                                   if re.search(r'\d+', file) \
+    #                                   and int(re.search(r'\d+', file).group()) == num), None)
+    #             # print('筛选结果',matching_file)
+    #             if matching_file:
+    #                 result_files.append(matching_file)
+    #     if len(greater_numbers) < 4 and len(greater_numbers) > 0:
+    #         result_files = []
+    #         for num in greater_numbers:
+    #             matching_file = next((file for file in filenames if str(num) in file), None)
+    #             if matching_file:
+    #                 result_files.append(matching_file)
+    #
     #     return result_files
 
+    #todo#改进:导入新的视频和图片时采取增加而不是覆盖的方式；但是首次打开文件需要清空之前的文件。 解决
+    #todo#解决bug:两库图片名称一致的情况下，无法转移
+    #todo#解决bug:图片转移时，有展示，无库存，不可更新；无展示，有库存，不可更新；无展示，无库存，不可更新。只有有展示，有库存才更新。解决
+    #todo#重新设计图片存储方式，使得一边实现图片的转移，一边进行图片的依次展示。
+    #######重新设计图片存储方式#######
+    #方法1: 图片均以img0,1,2,3...命名，会导致的问题是，两库图片名称一致的情况下，无法转移。
+    #       ------> imgwork0,1,2...; imgware0,1,2... 此时图片还不能判断疾病呢，这样命名没错。
+    #方法2: 图片根据结尾序号0，1，2，3...依次更新，从头至尾。会导致另一边转移的新图片难以加入展示的序列。
+    #       ------> 转移后立即按最大序号递增重命名。
+    #方法3: 图片转移后，展示的图片不更新。
+    #       ------> 转移后立即进行展示更新
+
+    #######图片转移后展示的问题解决#######
+    # nextpage1_press_clicked 链接更新下一页
+    #         label_texts = self.idx_get(self.grid_layout1) # 无展示，为空，有展示，为列表
+    #         name = self.next4get(label_texts, path='save//warehouse')
+    #         label_texts得到后面<=4个展示图片，或者没有图片; !label_texts从头开始选取<=4个图片展示，或者没有图片
+    #         如果没有图片，则返回空列表
+    #         dir = [os.path.join('save//warehouse',i) for i in name] #找到图片地址并加载
+    #         self.load_images_to_grid(self.box1, self.grid_layout1, dir)
 
 
+    def next4get(self,label_texts, path):
+        filenames = os.listdir(path)
+        # matching_files = [filename for filename in filenames if filename.endswith('.png')]
+        matching_numbers = [int(item.split('_')[-1].split('.')[0]) for item in filenames] # 库内
+        print('这个空间没东西',matching_numbers)
+        matching_numbers.sort()
+        print('success sort')
+        if len(matching_numbers) == 0:
+            result_files = []
+        else:
+            if label_texts:
+                # 得到目前展示的四张图片名 并在地址中寻找接下来四个文件名
+                max_numbers = [int(item.split('_')[-1].split('.')[0]) for item in label_texts]
+                maxidx = max(max_numbers)
+                print(maxidx)
+                # print('前四章图片最大',maxidx)
+                # print('已排序',matching_numbers[:5])
+                greater_numbers = [num for num in matching_numbers if num > maxidx]
+                # print('比较大小',greater_numbers[:4])
+                if len(greater_numbers)==0:
+                    # print(greater_numbers,'??')
+                    greater_numbers = matching_numbers
+                if len(greater_numbers) >=4 :
+                    result_files = []
+                    for num in greater_numbers[:4]:
+                        print(num)
+                        matching_file = next((file for file in filenames \
+                                              if re.search(r'\d+', file) \
+                                              and int(re.search(r'\d+', file).group()) == num), None)
+                        # print('筛选结果',matching_file)
+                        if matching_file:
+                            result_files.append(matching_file)
+                if len(greater_numbers) < 4 and len(greater_numbers)>0 :
+                    result_files = []
+                    for num in greater_numbers:
+                        matching_file = next((file for file in filenames if str(num) in file), None)
+                        if matching_file:
+                            result_files.append(matching_file)
+            else:
+                result_files = []
+                # 目前没有展示 但是仓库里有东西，可能是新添加的
+                if len(matching_numbers) >= 4:
+                    print('目前没有展示 但是仓库里有东西，可能是新添加的>=4')
+                    result_files = matching_numbers[:4].copy()
+                    for num in result_files:
+                        matching_file = next((file for file in filenames if str(num) in file), None)
+                        # print('筛选结果',matching_file)
+                        if matching_file:
+                            result_files.append(matching_file)
+                    print(result_files)
+                else:
+                    print('目前没有展示 但是仓库里有东西，可能是新添加的<4')
+                    print( matching_numbers)
+                    # result_files = matching_numbers.copy()
+                    for num in matching_numbers:
+                        print(num)
+                        matching_file = next((file for file in filenames if str(num) in file), None)
+                        print('??')
+                        if matching_file:
+                            result_files.append(matching_file)
+                    print(result_files)
+        return result_files
 
 
 
@@ -351,37 +401,12 @@ class MyWindow2(QWidget):
         # if selected_folder:
         #     self.source_folder = selected_folder
 
-    # def nextpage2_press_clicked(self):
-    #     print(self.grid_layout2,'?????')
-    #     label_texts = self.idx_get(self.grid_layout2)
-    #     print('!!!',label_texts)
-    #     # 两个标志 label_texts; os.listdir()
-    #     # 几种情况  展示页无，仓库内有；展示页有仓库内无，展示页仓库也均无，展示页仓库页均有
-    #     # 逻辑应为 仓库内存在文件 才进行下一步更新
-    #     print(os.listdir('save//workroom'))
-    #     if  os.listdir('save//workroom'):
-    #         name = self.next4get(label_texts, path='save//workroom')
-    #         dir = [os.path.join("save//workroom",i) for i in name]
-    #         self.load_images_to_grid(self.box2, self.grid_layout2, dir)
-    #     if  len(os.listdir('save//workroom'))==0:
-    #         print('empty')
-    #         self.init_images_to_grid(self.box2, self.grid_layout2, "save//workroom")
-    #         # 文件夹空 直接清空页面
-    #
-    #
-    # def nextpage1_press_clicked(self):
-    #     label_texts = self.idx_get(self.grid_layout1)
-    #     if  os.listdir():
-    #         name = self.next4get(label_texts, path='save//warehouse')
-    #         dir = [os.path.join("save//warehouse",i) for i in name]
-    #         self.load_images_to_grid(self.box1, self.grid_layout1, dir)
-    #     if  not os.listdir():
-    #         self.init_images_to_grid(self.box1, self.grid_layout1, "save//warehouse")
-
     def nextpage2_press_clicked(self):
         label_texts = self.idx_get(self.grid_layout2)
         name = self.next4get(label_texts, path='save//workroom')
+        print(name)
         dir = [os.path.join("save//workroom",i) for i in name]
+        print(dir)
         self.load_images_to_grid(self.box2, self.grid_layout2, dir)
 
     def nextpage1_press_clicked(self):
